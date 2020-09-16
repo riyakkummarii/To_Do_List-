@@ -2,7 +2,7 @@ const express = require("express");
 const bodyParser = require("body-parser");
 const mongoose = require("mongoose");
 const _= require("lodash");
-
+require('dotenv').config();
 
 const app = express();
 app.use(bodyParser.urlencoded({
@@ -11,8 +11,7 @@ app.use(bodyParser.urlencoded({
 app.use(express.static("public"));
 app.set('view engine', 'ejs');
 
-
-mongoose.connect("mongodb://localhost:27017/todolistDB", {
+mongoose.connect(process.env.DB_CONN, {
   useNewUrlParser: true,
   useUnifiedTopology: true,
   useFindAndModify: false
@@ -49,7 +48,6 @@ app.get("/", function(req, res) {
     if (err) {
       console.log(err);
     } else if (foundItems.length === 0) {
-      
       Item.insertMany(defaultItems, function(err) {
         if (err) {
           console.log(err);
@@ -62,7 +60,7 @@ app.get("/", function(req, res) {
       res.render("list", {
         listTitle: "Today",
         newListItems: foundItems
-      }); 
+      });
     }
   });
 
@@ -94,7 +92,6 @@ app.post("/", function(req, res) {
 });
 
 app.post("/delete", function(req, res) {
- 
   const checkedItemID = req.body.checked;
 
   const listName_ = req.body.listName;
@@ -109,7 +106,7 @@ app.post("/delete", function(req, res) {
       }
     });
   }
-//To delete items of Custom List
+
   else {
     List.findOneAndUpdate({
       name: listName_
@@ -161,6 +158,14 @@ app.get("/about", function(req, res) {
   res.render("about");
 });
 
-app.listen(3000, function() {
-  console.log("Server is running on port 3000");
+
+
+let port = process.env.PORT;
+if (port == null || port == "") {
+  port = 3000;
+}
+
+
+app.listen(port, function() {
+  console.log("Server is running Successfully on port "+port);
 });
